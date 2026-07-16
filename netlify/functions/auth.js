@@ -22,8 +22,17 @@
 // No KV binding to configure — Netlify Blobs works automatically inside
 // Netlify Functions.
 
+import { getStore } from "@netlify/blobs";
 import { webcrypto as crypto } from "node:crypto";
-import { usersStore } from "./_blobs.mjs";
+
+// getStore(name)'s automatic siteID/token detection doesn't reliably reach
+// this Lambda-style handler in production, so fall back to explicit
+// siteID/token (a Netlify personal access token) via env vars when set.
+function usersStore() {
+  const siteID = process.env.BLOBS_SITE_ID;
+  const token = process.env.BLOBS_TOKEN;
+  return siteID && token ? getStore("silo-users", { siteID, token }) : getStore("silo-users");
+}
 
 const json = (obj, statusCode = 200) => ({
   statusCode,
