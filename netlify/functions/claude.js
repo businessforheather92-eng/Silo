@@ -12,8 +12,8 @@
 // AI_DAILY_CAP. No KV binding to configure — Netlify Blobs works
 // automatically inside Netlify Functions.
 
-import { getStore } from "@netlify/blobs";
 import { webcrypto as crypto } from "node:crypto";
+import { usersStore } from "./_blobs.mjs";
 
 const DEMO_REPLY = {
   content: [{ type: "text", text: "(Demo mode — AI replies appear once the server has an API key configured. Everything else works.)" }],
@@ -62,7 +62,7 @@ export async function handler(event) {
     const email = sessionSecret ? await verifyToken(token, sessionSecret) : null;
     if (!email) return json({ error: "session_invalid" }, 401);
 
-    const users = getStore("silo-users");
+    const users = usersStore();
 
     // Live entitlement check, not just a valid token — a subscription can
     // lapse mid-way through a still-valid ~6-month session. ls-webhook.js

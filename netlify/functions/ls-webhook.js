@@ -17,8 +17,8 @@
 //     subscription_payment_success, subscription_expired
 //   Copy the signing secret it gives you into env LS_WEBHOOK_SECRET.
 
-import { getStore } from "@netlify/blobs";
 import { webcrypto as crypto } from "node:crypto";
+import { usersStore } from "./_blobs.mjs";
 
 const enc = new TextEncoder();
 
@@ -45,7 +45,7 @@ export async function handler(event) {
   let payload;
   try { payload = JSON.parse(raw); } catch { return { statusCode: 400, body: "bad json" }; }
 
-  const users = getStore("silo-users");
+  const users = usersStore();
   const eventName = payload.meta?.event_name;
   const attrs = payload.data?.attributes || {};
   const email = String(attrs.user_email || "").trim().toLowerCase();

@@ -22,8 +22,8 @@
 // No KV binding to configure — Netlify Blobs works automatically inside
 // Netlify Functions.
 
-import { getStore } from "@netlify/blobs";
 import { webcrypto as crypto } from "node:crypto";
+import { usersStore } from "./_blobs.mjs";
 
 const json = (obj, statusCode = 200) => ({
   statusCode,
@@ -106,7 +106,7 @@ export async function handler(event) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ ok: false, reason: "That email doesn't look right." });
   if (password.length < 8) return json({ ok: false, reason: "Password needs at least 8 characters." });
 
-  const users = getStore("silo-users");
+  const users = usersStore();
   const userKey = `user:${email}`;
   const existingRaw = await users.get(userKey);
   const existing = existingRaw ? JSON.parse(existingRaw) : null;
