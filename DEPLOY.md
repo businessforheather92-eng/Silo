@@ -70,6 +70,7 @@ the exact clicks. Summary:
    | `LEMONSQUEEZY_API_KEY` | the LS API key from step 2 |
    | `LS_STORE_ID` | your Lemon Squeezy store id |
    | `LS_LIFETIME_PRODUCT_ID` | the numeric product id of "Silo Lifetime" (Products page → open it → id is in the URL, or `GET /v1/products?filter[store_id]=...`). **Required** — without it, `hasPaidOrder()` can't tell a real Lifetime purchase apart from a Monthly subscription's $0 trial order (Lemon Squeezy creates an "order" record for both), which misclassifies every Monthly subscriber as `plan:"lifetime"` and permanently breaks revocation. |
+   | `LIFETIME_CAP` | optional; how many Lifetime purchases are honored, first-come-first-served by purchase time, store-wide (default 100). "Lifetime, limited to the first 100 buyers." Anyone past the cap is automatically refunded (see below) and never granted lifetime access — enforced live against the LS API, not a counter that can drift. |
    | `LS_WEBHOOK_SECRET` | the signing secret from the webhook you created in step 2.5 |
    | `BLOBS_SITE_ID` | your Netlify site id (Site configuration → General → Site details). **Required** — `getStore()`'s automatic siteID/token detection doesn't reliably reach these Lambda-style function handlers in production; without this the functions 502 with `MissingBlobsEnvironmentError`. |
    | `BLOBS_TOKEN` | a Netlify personal access token (User settings → Applications → New access token). Paired with `BLOBS_SITE_ID` above as the manual Blobs config fallback. Note: a personal access token is account-wide, broader than this alone needs — fine to start, worth tightening later. |
@@ -118,14 +119,25 @@ not a feature list.
 
 - `index.html` — landing page (root). `app/index.html` — the app at `/app/`.
 - `netlify/functions/auth.js` — signup/login. Signup works for emails with
-  either a paid Lifetime order or an active Monthly subscription (both
-  checked live via the LS API). Passwords are PBKDF2-hashed in Netlify Blobs;
-  sessions are signed tokens (~6 months) — but see `entitled:<email>` below
-  for why the token alone isn't the final word on access.
+  either a paid Lifetime order (only the first `LIFETIME_CAP`, store-wide, by
+  purchase time) or an active Monthly subscription (both checked live via the
+  LS API — never cached as a shortcut, since a subscription's $0 trial order
+  is also a "paid" order and would otherwise get misclassified as Lifetime).
+  Passwords are PBKDF2-hashed in Netlify Blobs; sessions are signed tokens
+  (~6 months) — but see `entitled:<email>` below for why the token alone
+  isn't the final word on access.
 - `netlify/functions/ls-webhook.js` — keeps the `entitled:<email>` Blobs flag
-  current as subscriptions renew or actually expire. Lifetime accounts set it
-  once and it's never cleared; Monthly accounts depend on this webhook firing
-  correctly — that's exactly what step 4.5 above is testing.
+  current as subscriptions renew or actually expire. Lifetime accounts (within
+  the cap) set it once and it's never cleared; Monthly accounts depend on this
+  webhook firing correctly — that's exactly what step 4.5 above is testing.
+  Also auto-refunds any Lifetime order that lands past the cap (stale landing
+  page, direct checkout link, race condition) rather than silently keeping
+  money for a deal that's no longer being sold.
+- `netlify/functions/lifetime-status.js` — public, unauthenticated `GET`.
+  Reports `{ limit, sold, remaining, soldOut }` live against the LS API (not
+  a persisted counter — can't drift from reality). The landing page's inline
+  script uses it to show "N of 100 left" and swap the Lifetime tile to a
+  "sold out → see Monthly" state once it's gone.
 - `netlify/functions/claude.js` — AI proxy: holds the API key, requires a
   valid session AND a live `entitled:<email>="1"` flag (not just a valid
   token — otherwise a cancelled Monthly subscriber would keep AI access for

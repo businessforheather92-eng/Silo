@@ -223,11 +223,11 @@
           </ul>
           <a class="btn btn-ghost" href="https://getsilo.lemonsqueezy.com/checkout/buy/45c5575e-e818-4585-b1ca-e366404b9c78">Start 14-day free trial</a>
         </div>
-        <div class="plan pro">
-          <div class="badge">Best value</div>
+        <div class="plan pro" id="lifetime-tile">
+          <div class="badge">Limited to the first 100</div>
           <div class="name">✦ Lifetime</div>
           <div class="price">$24.99</div>
-          <div class="per">once. yours forever — pays for itself in ~3 months vs. monthly.</div>
+          <div class="per" id="lifetime-scarcity">once. yours forever — pays for itself in ~3 months vs. monthly.</div>
           <ul>
             <li><strong>One payment. Everything below, forever.</strong></li>
             <li>Body Check, Routines, Novelty, Follow-Ups, Discipline, One Thing</li>
@@ -236,10 +236,32 @@
             <li>AI task chunking, thought recovery &amp; brain-dump sorting</li>
             <li>One account, all your devices, no recurring charge — ever</li>
           </ul>
-          <a class="btn btn-primary" href="https://getsilo.lemonsqueezy.com/checkout/buy/ca34f727-1bae-4b11-a844-e36cbe319ec9">Get Lifetime — $24.99 once</a>
+          <a class="btn btn-primary" id="lifetime-buy-btn" href="https://getsilo.lemonsqueezy.com/checkout/buy/ca34f727-1bae-4b11-a844-e36cbe319ec9">Get Lifetime — $24.99 once</a>
         </div>
       </div>
     </section>
+
+    <script>
+      // Lifetime is capped at the first 100 buyers — check live availability
+      // and hide/relabel the tile once it's gone. Fails open (leaves the
+      // default copy in place) if the check itself fails, since the actual
+      // cap is still enforced server-side at checkout/signup either way.
+      fetch("/api/lifetime-status").then(r => r.json()).then(({ sold, limit, remaining, soldOut }) => {
+        const scarcity = document.getElementById("lifetime-scarcity");
+        const btn = document.getElementById("lifetime-buy-btn");
+        const tile = document.getElementById("lifetime-tile");
+        if (!scarcity || !btn || !tile) return;
+        if (soldOut) {
+          tile.querySelector(".badge").textContent = "Sold out";
+          scarcity.textContent = `All ${limit} Lifetime spots are claimed — Monthly (with a 14-day free trial) unlocks the same everything.`;
+          btn.textContent = "See Monthly instead";
+          btn.href = "#pricing";
+          btn.onclick = (e) => { e.preventDefault(); document.querySelector('.plan:not(.pro) .btn').scrollIntoView({behavior:"smooth", block:"center"}); };
+        } else {
+          scarcity.textContent = `${remaining} of ${limit} spots left — once. yours forever.`;
+        }
+      }).catch(() => {});
+    </script>
 
     <section id="faq">
       <p class="sec-kicker" style="text-align:center">Questions</p>

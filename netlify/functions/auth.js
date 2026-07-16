@@ -6,18 +6,24 @@
 // Netlify port of functions/api/auth.js (Cloudflare Pages) — same logic,
 // Netlify Blobs instead of Cloudflare KV. Accounts exist to gate Pro tools +
 // AI (which cost money per message); all app data stays in the user's
-// browser. Signup is allowed for emails with EITHER a paid one-time
-// (Lifetime) order OR an active subscription (including a Lemon Squeezy
-// free trial, reported as status "on_trial") — both checked live against
-// the LS API. The result is cached in Blobs as `entitled:<email>` = "1",
-// which is the single flag netlify/functions/claude.js trusts on every
+// browser. Signup is allowed for emails with EITHER a paid Lifetime order
+// (only the first LIFETIME_CAP, store-wide, by purchase time — "limited to
+// the first 100 buyers") OR an active subscription (including a Lemon
+// Squeezy free trial, reported as status "on_trial") — both checked live
+// against the LS API. The result is cached in Blobs as `entitled:<email>` =
+// "1", which is the single flag netlify/functions/claude.js trusts on every
 // request (kept in sync afterward by ls-webhook.js, since a subscription
 // can lapse after the account already has a long-lived token).
 //
 // Env (Netlify site settings → Environment variables):
-//   SESSION_SECRET       – long random string; signs session tokens
-//   LEMONSQUEEZY_API_KEY – LS API key, used to look up orders/subs by email
-//   LS_STORE_ID          – your store id, scopes the lookups
+//   SESSION_SECRET        – long random string; signs session tokens
+//   LEMONSQUEEZY_API_KEY  – LS API key, used to look up orders/subs
+//   LS_STORE_ID           – your store id, scopes the lookups
+//   LS_LIFETIME_PRODUCT_ID – the Lifetime product's numeric id (required to
+//                            tell a real Lifetime order apart from a
+//                            subscription's $0 trial order, which LS also
+//                            records as a "paid" order)
+//   LIFETIME_CAP          – how many Lifetime purchases count (default 100)
 //   AUTH_REQUIRED         – "false" = open mode (no accounts needed)
 // No KV binding to configure — Netlify Blobs works automatically inside
 // Netlify Functions.
@@ -64,32 +70,54 @@ async function hashPassword(password, saltB64u, iterations) {
   return b64u(bits);
 }
 
-async function hasPaidOrder(email, users) {
-  const cached = await users.get(`entitled:${email}`);
-  if (cached === "1") return true;
-  if (!process.env.LEMONSQUEEZY_API_KEY) return false;
-  const url =
-    `https://api.lemonsqueezy.com/v1/orders?filter[store_id]=${encodeURIComponent(process.env.LS_STORE_ID || "")}` +
-    `&filter[user_email]=${encodeURIComponent(email)}`;
-  const r = await fetch(url, {
-    headers: { Accept: "application/vnd.api+json", Authorization: `Bearer ${process.env.LEMONSQUEEZY_API_KEY}` },
-  });
-  if (!r.ok) return false;
-  const d = await r.json();
-  // A subscription checkout also creates an "order" record (the initial
-  // invoice, even a $0 one during a free trial) with status "paid" — so
-  // checking status alone misclassifies every Monthly subscriber as
-  // "lifetime", which then makes the revocation webhook refuse to ever
-  // clear their entitlement. Require the order to actually be for the
-  // Lifetime product.
+// Fetches every paid/partial-refund order for the Lifetime product,
+// store-wide (not scoped to one email), sorted ascending by created_at.
+// Store-wide + always-live (never cached) on purpose: the "first N buyers"
+// cap depends on an order's rank relative to every other buyer, not just
+// whether this one email paid — a per-email cache can't answer that.
+async function fetchPaidLifetimeOrders() {
   const lifetimeProductId = process.env.LS_LIFETIME_PRODUCT_ID;
-  const paid = (d.data || []).some(
-    (o) =>
-      ["paid", "partial_refund"].includes(o.attributes?.status) &&
-      (!lifetimeProductId || String(o.attributes?.first_order_item?.product_id) === String(lifetimeProductId))
-  );
-  if (paid) await users.set(`entitled:${email}`, "1");
-  return paid;
+  if (!process.env.LEMONSQUEEZY_API_KEY || !lifetimeProductId) return [];
+  const results = [];
+  let page = 1;
+  const perPage = 100;
+  while (page <= 20) { // hard safety cap on pagination loops
+    const url =
+      `https://api.lemonsqueezy.com/v1/orders?filter[store_id]=${encodeURIComponent(process.env.LS_STORE_ID || "")}` +
+      `&page[size]=${perPage}&page[number]=${page}`;
+    const r = await fetch(url, {
+      headers: { Accept: "application/vnd.api+json", Authorization: `Bearer ${process.env.LEMONSQUEEZY_API_KEY}` },
+    });
+    if (!r.ok) break;
+    const d = await r.json();
+    for (const o of d.data || []) {
+      const a = o.attributes || {};
+      if (["paid", "partial_refund"].includes(a.status) && String(a.first_order_item?.product_id) === String(lifetimeProductId)) {
+        results.push({ id: o.id, email: String(a.user_email || "").trim().toLowerCase(), created_at: a.created_at });
+      }
+    }
+    const lastPage = d.meta?.page?.lastPage || 1;
+    if (page >= lastPage) break;
+    page++;
+  }
+  results.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  return results;
+}
+
+// Only the first LIFETIME_CAP paid Lifetime orders (by purchase time,
+// store-wide) count as a real Lifetime purchase — "Lifetime, limited to the
+// first 100 buyers." Deliberately NOT cache-shortcut-able: a subscription's
+// $0 trial order is also a "paid" order, so trusting a generic entitled
+// cache here (as a prior version of this code did) would misclassify every
+// Monthly subscriber as Lifetime. Always verified fresh against the live LS
+// order list and its rank in it.
+async function hasPaidOrder(email) {
+  const orders = await fetchPaidLifetimeOrders();
+  const mine = orders.find((o) => o.email === email);
+  if (!mine) return false;
+  const cap = Number(process.env.LIFETIME_CAP) || 100;
+  const rank = orders.findIndex((o) => o.id === mine.id);
+  return rank !== -1 && rank < cap;
 }
 
 // Subscription check — separate from hasPaidOrder because a subscription can
@@ -133,7 +161,7 @@ export async function handler(event) {
 
   if (action === "signup") {
     if (existing) return json({ ok: false, reason: "That email already has an account — sign in instead." });
-    const lifetime = await hasPaidOrder(email, users);
+    const lifetime = await hasPaidOrder(email);
     const subscribed = lifetime ? false : await hasActiveSubscription(email, users);
     if (!lifetime && !subscribed)
       return json({

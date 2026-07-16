@@ -893,6 +893,7 @@ function ProMenu(){
   const [pass,setPass]=useState("");
   const [busy,setBusy]=useState(false);
   const [msg,setMsg]=useState("");
+  const [lifetimeSoldOut,setLifetimeSoldOut]=useState(false);
   const pro=!!acct?.token;
   // an AI feature just hit the paywall — open this menu so the path forward is obvious
   useEffect(()=>{
@@ -901,6 +902,11 @@ function ProMenu(){
     window.addEventListener("c_pro_needed",wake);
     window.addEventListener("c_account_changed",sync);
     return()=>{window.removeEventListener("c_pro_needed",wake);window.removeEventListener("c_account_changed",sync);};
+  },[]);
+  // Lifetime is capped at the first 100 buyers — check live so this menu
+  // doesn't keep sending people to a checkout that's already full.
+  useEffect(()=>{
+    fetch("/api/lifetime-status").then(r=>r.json()).then(d=>setLifetimeSoldOut(!!d.soldOut)).catch(()=>{});
   },[]);
   const submit=async()=>{
     if(busy)return;
@@ -925,8 +931,13 @@ function ProMenu(){
           </>):(<>
             <Lbl>✦ Silo Pro</Lbl>
             <p style={{fontSize:11,color:P.muted,lineHeight:1.5,marginBottom:10}}>One payment unlocks everything — not per tool: Body Check, Routines, Novelty, Follow-Ups, Discipline, the full sound library, your companion's live AI voice, and every AI feature.</p>
-            <Btn sm full onClick={()=>window.open(BUY_URL,"_blank")}>Get Pro — {PRICE_LIFETIME} once</Btn>
-            <button onClick={()=>window.open(BUY_URL_SUB,"_blank")} style={{display:"block",width:"100%",textAlign:"center",background:"none",border:"none",color:P.p50,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:FONT,marginTop:8,padding:0}}>or try {TRIAL_DAYS} days free, then {PRICE_SUB}</button>
+            {lifetimeSoldOut?(
+              <Btn sm full onClick={()=>window.open(BUY_URL_SUB,"_blank")}>Try {TRIAL_DAYS} days free, then {PRICE_SUB}</Btn>
+            ):(<>
+              <Btn sm full onClick={()=>window.open(BUY_URL,"_blank")}>Get Pro — {PRICE_LIFETIME} once</Btn>
+              <button onClick={()=>window.open(BUY_URL_SUB,"_blank")} style={{display:"block",width:"100%",textAlign:"center",background:"none",border:"none",color:P.p50,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:FONT,marginTop:8,padding:0}}>or try {TRIAL_DAYS} days free, then {PRICE_SUB}</button>
+            </>)}
+            {lifetimeSoldOut&&<p style={{fontSize:10,color:P.muted,marginTop:6}}>Lifetime was limited to the first 100 buyers and is sold out — Monthly unlocks the exact same everything.</p>}
             <p style={{fontSize:10,color:P.muted,marginTop:8,marginBottom:10}}>Then come back and create your account with the same email you used at checkout.</p>
             <div style={{height:1,background:P.border,margin:"2px 0 12px"}}/>
             <div style={{display:"flex",gap:4,marginBottom:10}}>
