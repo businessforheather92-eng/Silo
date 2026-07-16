@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Frontend code calls /api/claude and /api/auth (see adhd-os.jsx) — this
+# redirect maps those same paths to the deployed functions so no frontend
+# changes were needed, and the same paths still work locally as Vite dev
+# stubs (see vite.config.js).
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200

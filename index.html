@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#F6F5EC" />
+  <title>Silo — a calm toolkit for the ADHD brain</title>
+  <meta name="description" content="A calm, research-grounded toolkit for ADHD brains — fourteen tools built around what the research actually supports, use one or use them all. Free to start." />
+  <link rel="icon" type="image/png" href="/icon-192.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta property="og:title" content="Silo — a calm toolkit for the ADHD brain" />
+  <meta property="og:description" content="Grounded in published ADHD research, not productivity folklore. Fourteen tools, use what today needs — free to start." />
+  <meta property="og:image" content="/shot-dashboard.png" />
+  <style>
+    :root{
+      --paper:#F3F0E3;--paper-2:#EAE6D3;--card:#FBFAF3;
+      --ink:#1E2617;--sub:#4A5A3E;--muted:#84907A;
+      --leaf:#4B6B3A;--leaf-deep:#263317;--sage:#6B8A57;--sage-soft:#E4EBD6;
+      --accent:#8C7A3C;--accent-soft:#EDE7D2;
+      --border:#E1DCC5;--border-hi:#B7BF9C;
+      --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+      --sans:'Inter var','Inter',system-ui,sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.65;-webkit-font-smoothing:antialiased}
+    a{color:var(--leaf)}
+    .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+    h1,h2,.logo{font-family:var(--serif);font-weight:600}
+    .btn{display:inline-block;padding:13px 28px;border-radius:999px;border:none;cursor:pointer;text-decoration:none;font-weight:600;font-size:15px;font-family:var(--sans);letter-spacing:.2px}
+    .btn-primary{background:var(--leaf-deep);color:var(--paper);box-shadow:0 8px 26px rgba(38,51,23,.24)}
+    .btn-primary:hover{background:#1B240F}
+    .btn-ghost{background:transparent;border:1px solid var(--border-hi);color:var(--leaf)}
+    .btn-ghost:hover{background:var(--sage-soft)}
+    nav{display:flex;align-items:center;gap:12px;padding:22px 0}
+    .logo{display:flex;align-items:center;gap:9px;font-size:20px;letter-spacing:-.2px;color:var(--ink);text-decoration:none}
+    .logo .dot{color:var(--sage);font-size:19px}
+    .logo em{color:var(--leaf);font-style:normal}
+    nav .spacer{margin-left:auto}
+    nav a.open{font-size:13px;padding:10px 20px}
+    .hero{padding:64px 0 40px;text-align:center;position:relative}
+    .sprig{color:var(--accent);opacity:.85;margin-bottom:18px}
+    .hero .kicker{display:inline-block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--leaf-deep);background:var(--accent-soft);padding:6px 16px;border-radius:999px;margin-bottom:28px}
+    h1{font-size:clamp(34px,6vw,58px);line-height:1.1;letter-spacing:-.5px;max-width:780px;margin:0 auto 20px}
+    h1 em{font-style:italic;color:var(--leaf-deep)}
+    .hero p.sub{font-size:clamp(15px,2.4vw,18px);color:var(--sub);max-width:640px;margin:0 auto 32px}
+    .cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+    .cta-note{font-size:12.5px;color:var(--muted);margin-top:14px}
+    .shot{margin:56px auto 0;max-width:980px;border:1px solid var(--border-hi);border-radius:18px;overflow:hidden;box-shadow:0 30px 80px rgba(44,66,36,.18);background:var(--card)}
+    .shot img{display:block;width:100%;height:auto}
+    section{padding:76px 0}
+    .divider{display:flex;justify-content:center;color:var(--border-hi);padding:6px 0}
+    .sec-kicker{font-size:11px;font-weight:700;letter-spacing:2.6px;text-transform:uppercase;color:var(--leaf);margin-bottom:10px}
+    h2{font-size:clamp(26px,4vw,36px);letter-spacing:-.4px;line-height:1.15;margin-bottom:14px}
+    .sec-sub{color:var(--sub);font-size:15px;max-width:660px;margin-bottom:38px}
+    .principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+    .principle{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px}
+    .principle .glyph{font-size:22px;color:var(--sage);margin-bottom:12px}
+    .principle h3{font-size:16px;letter-spacing:-.1px;margin-bottom:8px;font-weight:700}
+    .principle p{font-size:13.5px;color:var(--muted)}
+    .research{background:var(--paper-2);border-radius:24px;padding:48px 40px;border:1px solid var(--border)}
+    .research-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:8px}
+    .study{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px}
+    .study h3{font-size:14.5px;font-weight:700;margin-bottom:6px;color:var(--leaf-deep)}
+    .study p{font-size:13px;color:var(--muted);line-height:1.6}
+    .study .tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--leaf);background:var(--sage-soft);border-radius:999px;padding:3px 10px;margin-bottom:10px}
+    .tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+    .tool{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:17px 18px;transition:border-color .15s,box-shadow .15s}
+    .tool:hover{border-color:var(--border-hi);box-shadow:0 6px 18px rgba(44,66,36,.08)}
+    .tool .head{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+    .tool .glyph{color:var(--sage);font-size:14px}
+    .tool .name{font-size:13.5px;font-weight:700}
+    .tool .ai{margin-left:auto;font-size:9px;font-weight:800;letter-spacing:1px;color:var(--leaf);border:1px solid var(--border-hi);background:var(--sage-soft);border-radius:999px;padding:1px 8px}
+    .tool p{font-size:12.5px;color:var(--muted);line-height:1.55}
+    .pricing{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;max-width:980px;margin:0 auto}
+    .plan{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:32px;position:relative}
+    .plan.pro{border:1.5px solid var(--leaf-deep);box-shadow:0 18px 50px rgba(38,51,23,.14)}
+    .plan .badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--leaf-deep);color:var(--paper);font-size:10.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;padding:5px 16px;border-radius:999px;white-space:nowrap}
+    .plan .name{font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--leaf);margin-bottom:10px}
+    .plan .price{font-family:var(--serif);font-size:40px;letter-spacing:-1px}
+    .plan .price .strike{font-size:18px;color:var(--muted);text-decoration:line-through;font-weight:400;margin-right:8px}
+    .plan .per{font-size:13px;color:var(--muted);margin-bottom:20px}
+    .plan ul{list-style:none;margin-bottom:26px}
+    .plan li{font-size:13.5px;color:var(--sub);padding:7px 0;border-bottom:1px solid var(--border)}
+    .plan li:last-child{border:none}
+    .plan li::before{content:"✓  ";color:var(--leaf);font-size:11px}
+    .plan .btn{width:100%;text-align:center}
+    .faq{max-width:720px;margin:0 auto}
+    .faq details{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 22px;margin-bottom:10px}
+    .faq summary{cursor:pointer;font-weight:700;font-size:14px;list-style:none;display:flex;align-items:center}
+    .faq summary::after{content:"+";margin-left:auto;color:var(--sage);font-size:18px;font-weight:400}
+    .faq details[open] summary::after{content:"–"}
+    .faq details p{font-size:13.5px;color:var(--muted);padding-top:12px;line-height:1.7}
+    .closer{text-align:center;padding:84px 0 92px}
+    footer{border-top:1px solid var(--border);padding:28px 0 42px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+    footer .fine{font-size:12.5px;color:var(--muted)}
+    footer .spacer{margin-left:auto}
+    @media(max-width:600px){
+      section{padding:50px 0}
+      .hero{padding:40px 0 26px}
+      .research{padding:32px 22px}
+      footer{flex-direction:column;align-items:flex-start}
+      footer .spacer{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <a class="logo" href="/"><span class="dot">◉</span>Silo</a>
+      <span class="spacer"></span>
+      <a class="btn btn-primary open" href="/app/">Open the app →</a>
+    </nav>
+
+    <header class="hero">
+      <div class="sprig">
+        <svg width="64" height="30" viewBox="0 0 64 30" fill="none" aria-hidden="true">
+          <path d="M4 26 C 16 22, 26 14, 34 4" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+          <path d="M14 20 c -4 -1, -6 -5, -5 -9 c 4 1, 7 4, 5 9z" fill="currentColor" opacity=".85"/>
+          <path d="M22 13 c -4 -1.5, -5.5 -5.5, -4 -9.5 c 4.5 1.5, 7 5.5, 4 9.5z" fill="currentColor" opacity=".7"/>
+          <path d="M30 7 c -3 -2, -3.5 -5.5, -1.5 -8.5 c 3.5 2, 5 5.5, 1.5 8.5z" fill="currentColor" opacity=".55"/>
+        </svg>
+      </div>
+      <span class="kicker">Built for ADHD brains · Grounded in research · Free to start</span>
+      <h1>A calmer way to work<br/>with the brain <em>you actually have.</em></h1>
+      <p class="sub">Built from ADHD research, not productivity folklore — use one tool or use all fourteen, whatever today's brain needs. No fixed program, no signup to start.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/app/">Start free — nothing to install</a>
+        <a class="btn btn-ghost" href="#research">See the research</a>
+      </div>
+      <p class="cta-note">Works in your browser, saves on your device, installs to your home screen if you want it to.</p>
+      <div class="shot"><img src="/shot-dashboard.png" alt="The Silo dashboard: capture, focus timer, tasks, sound and progress panels in a calm botanical green interface" /></div>
+    </header>
+
+    <section>
+      <p class="sec-kicker">The idea</p>
+      <h2>Sessions, not systems.</h2>
+      <p class="sec-sub">Productivity apps assume the same brain shows up every day. Yours doesn't — so Silo starts every session by asking what today's brain is like, and you pick only the tools that fit. Two panels on a crashed day. Six when you're locked in. Zero shame either way.</p>
+      <div class="principles">
+        <div class="principle"><div class="glyph">☘</div><h3>Pick tools per session</h3><p>Open with an energy check-in and choose your panels for right now. The layout is yours — nothing is mandatory, nothing nags.</p></div>
+        <div class="principle"><div class="glyph">❀</div><h3>No streaks, no guilt</h3><p>Nothing punishes you for disappearing for a week. Come back, tap what fits, start a session. The app meets you where you are.</p></div>
+        <div class="principle"><div class="glyph">✾</div><h3>Your data stays yours</h3><p>Everything lives in your browser — no account, no cloud, no tracking. One click exports a full backup file.</p></div>
+      </div>
+    </section>
+
+    <section id="research" style="padding-top:0">
+      <div class="research">
+        <p class="sec-kicker">Why these tools</p>
+        <h2>Built on the research, not productivity folklore.</h2>
+        <p class="sec-sub">Every tool in Silo maps to something the ADHD literature actually supports — and where the evidence is early, the app says so right on the label instead of overselling it.</p>
+        <div class="research-grid">
+          <div class="study"><span class="tag">Well studied</span><h3>Body doubling</h3><p>Working alongside another presence measurably helps ADHD task initiation and follow-through. The AI companion gives you that presence on demand — face, voice, and quiet company.</p></div>
+          <div class="study"><span class="tag">Well studied</span><h3>Noise &amp; attention</h3><p>Stochastic-resonance studies show steady moderate noise improves focus and working memory in ADHD, under-stimulated brains. The Sound tool is organized by goal, with an honest evidence label on every option.</p></div>
+          <div class="study"><span class="tag">Well studied</span><h3>Task chunking</h3><p>ADHD task paralysis responds to shrinking the first step below the activation threshold. The AI chunker turns "do taxes" into a step small enough to actually start.</p></div>
+          <div class="study"><span class="tag">Well studied</span><h3>Implementation intentions</h3><p>"I will do X at Y" beats willpower in executive-function research. Intention, Routines, and the session launcher are all built around this one finding.</p></div>
+          <div class="study"><span class="tag">Working memory</span><h3>External capture</h3><p>ADHD working memory drops thoughts mid-flight. A zero-friction capture box — one hotkey from anywhere — moves the thought out of your head before it's gone.</p></div>
+          <div class="study"><span class="tag">Self-regulation</span><h3>Interoception &amp; breaks</h3><p>Hyperfocus skips hunger, thirst and posture until the crash. The circuit breaker and body check bring the body back into the loop, gently.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider" aria-hidden="true">
+      <svg width="72" height="26" viewBox="0 0 72 26" fill="none">
+        <path d="M4 13 H68" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M36 20 q-4-8 0-14 q4 6 0 14z" fill="currentColor"/>
+      </svg>
+    </div>
+
+    <section id="tools">
+      <p class="sec-kicker">What's inside</p>
+      <h2>One toolbox. You pick what today needs.</h2>
+      <p class="sec-sub">Fourteen tools, each built for a specific way ADHD eats a day: the vanished thought, the un-started task, the 4-hour hyperfocus with no water. Every session starts by tapping whichever ones fit today's brain — one, three, or all fourteen. Tools marked ✦ Pro are all included in one Pro unlock — a single $24.99 lifetime payment, or $7.99/mo with a 14-day free trial, either one unlocking every ✦ tool, not sold piece by piece.</p>
+      <div class="tools">
+        <div class="tool"><div class="head"><span class="glyph">✦</span><span class="name">Capture</span></div><p>Catch the thought before it's gone — press C anywhere, type, done. Brain dumps and lost-thought recovery live here too.</p></div>
+        <div class="tool"><div class="head"><span class="glyph">◷</span><span class="name">Focus Timer</span></div><p>Kind work sprints with real breaks, plus progress bars for tasks and long projects — done-ness you can actually see.</p></div>
+        <div class="tool"><div class="head"><span class="glyph">◈</span><span class="name">Tasks</span></div><p>A to-do list built for starting, not just listing. With Pro, AI chunks the scary task into steps small enough to begin.</p></div>
+        <div class="tool"><div class="head"><span class="glyph">❋</span><span class="name">Check-In</span></div><p>Name what you're feeling with more precision than "bad," then set one sentence of intention for the session.</p></div>
+        <div class="tool"><div class="head"><span class="glyph">◍</span><span class="name">Body Double</span></div><p>A companion with a face who sits with you while you work — fullscreen if you want real presence. Free keeps you quiet company; Pro makes them live, listening and talking back.</p></div>
+        <div class="tool"><div class="head"><span class="glyph">♫</span><span class="name">Sound</span></div><p>Research-backed audio by goal — focus, calm, sleep, energize — with honest evidence labels. White noise, brown noise and rain are free; Pro opens the whole library.</p></div>
+        <div class="tool"><div class="head"><span class="glyph">◬</span><span class="name">Body Check</span><span class="ai">✦ Pro</span></div><p>A 60-second body scan plus the hyperfocus circuit breaker — water, food, posture, eyes — before the 5-hour tunnel wrecks your evening.</p></div>
+        <div class="tool"><div class="head"><span class="glyph">◫</span><span class="name">Routines</span><span class="ai">✦ Pro</span></div><p>Step-by-step templates for the transitions that hurt: mornings, shutdowns, leaving the house.</p></div>
+        <div class="tool"><div class="head"><span class="glyph">✳</span><span class="name">Novelty</span><span class="ai">✦ Pro</span></div><p>Unstick a bored brain with a random constraint, medium switch or micro-challenge.</p></div>
+        <div class="tool"><div class="head"><span class="glyph">⟳</span><span class="name">Follow-Ups</span><span class="ai">✦ Pro</span></div><p>Everything you're waiting on someone else for, in one list — so open loops stop renting space in your head.</p></div>
+        <div class="tool"><div class="head"><span class="glyph">⬡</span><span class="name">Discipline</span><span class="ai">✦ Pro</span></div><p>Build self-trust with tiny kept promises — the anti-punishment approach to consistency.</p></div>
+        <div class="tool"><div class="head"><span class="glyph">◒</span><span class="name">Friction Slider</span></div><p>Low battery, normal or hyperfocused — a quick honest read with zero guilt attached, ever.</p></div>
+        <div class="tool"><div class="head"><span class="glyph">⟡</span><span class="name">One Thing</span><span class="ai">✦ Pro</span></div><p>One suggestion, not a list — sized to however many minutes you actually have right now.</p></div>
+        <div class="tool"><div class="head"><span class="glyph">⛁</span><span class="name">Parking Lot</span></div><p>Drop a thought and keep moving. Daily review sorts it later — nothing to file in the moment.</p></div>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <p class="sec-kicker" style="text-align:center">Pricing</p>
+      <h2 style="text-align:center">Start free. Unlock everything when you're ready.</h2>
+      <p class="sec-sub" style="text-align:center;margin-left:auto;margin-right:auto">Create your account with your checkout email and sign in on any device. The free tier needs no account at all — and either paid option unlocks the exact same full toolbox, not a bigger or smaller slice of it.</p>
+      <div class="pricing">
+        <div class="plan">
+          <div class="name">Free</div>
+          <div class="price">$0</div>
+          <div class="per">no signup required</div>
+          <ul>
+            <li>Capture — with the quick-capture hotkey</li>
+            <li>Focus Timer with progress bars</li>
+            <li>Tasks</li>
+            <li>Check-In — emotions &amp; intentions</li>
+            <li>Sound starter pack — white, brown &amp; rain</li>
+            <li>Body Double — quiet company mode</li>
+            <li>Friction Slider &amp; Parking Lot</li>
+            <li>Data export/backup · install as an app</li>
+          </ul>
+          <a class="btn btn-ghost" href="/app/">Start free</a>
+        </div>
+        <div class="plan">
+          <div class="badge">14 days free</div>
+          <div class="name">Monthly</div>
+          <div class="price">$7.99</div>
+          <div class="per">after a 14-day free trial · cancel anytime</div>
+          <ul>
+            <li>Everything unlocked, same as Lifetime</li>
+            <li>Body Check, Routines, Novelty, Follow-Ups, Discipline, One Thing</li>
+            <li>The full sound library</li>
+            <li>Live body double + every AI feature</li>
+            <li>Try Pro free for 14 days before you're charged</li>
+          </ul>
+          <a class="btn btn-ghost" href="https://getsilo.lemonsqueezy.com/checkout/buy/45c5575e-e818-4585-b1ca-e366404b9c78">Start 14-day free trial</a>
+        </div>
+        <div class="plan pro">
+          <div class="badge">Best value</div>
+          <div class="name">✦ Lifetime</div>
+          <div class="price">$24.99</div>
+          <div class="per">once. yours forever — pays for itself in ~3 months vs. monthly.</div>
+          <ul>
+            <li><strong>One payment. Everything below, forever.</strong></li>
+            <li>Body Check, Routines, Novelty, Follow-Ups, Discipline, One Thing</li>
+            <li>The full sound library</li>
+            <li>Your body double goes live — listens, talks back, voice &amp; fullscreen</li>
+            <li>AI task chunking, thought recovery &amp; brain-dump sorting</li>
+            <li>One account, all your devices, no recurring charge — ever</li>
+          </ul>
+          <a class="btn btn-primary" href="https://getsilo.lemonsqueezy.com/checkout/buy/ca34f727-1bae-4b11-a844-e36cbe319ec9">Get Lifetime — $24.99 once</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <p class="sec-kicker" style="text-align:center">Questions</p>
+      <h2 style="text-align:center;margin-bottom:32px">Fair questions.</h2>
+      <div class="faq">
+        <details><summary>Is the free tier actually usable, or a demo?</summary><p>It's a real daily loop, no account needed: quick capture, the focus timer with progress bars, the task list, emotion/intention check-ins, the three classic sounds (white, brown, rain), and a body-double companion in quiet-company mode. Pro — $24.99 once, or $7.99/mo after a 14-day free trial — unlocks everything else at once: the remaining tools, the full sound library, your companion's live voice, and every AI feature. Never sold per-tool.</p></details>
+        <details><summary>How does the free trial work?</summary><p>Start the Monthly plan and you get 14 days of full Pro access before your card is charged. Cancel any time during the trial and you won't be billed. If you keep it, billing starts automatically at $7.99/mo on day 15 — no separate step needed.</p></details>
+        <details><summary>Lifetime or monthly — which should I pick?</summary><p>They unlock exactly the same things. Lifetime pays for itself in about three months of the monthly price and then owes nothing ever again — that's the better deal for almost everyone. Monthly starts with a 14-day free trial if you'd rather try Pro before committing, or just prefer paying as you go. You can start on monthly and switch to lifetime later; email us and we'll sort it out.</p></details>
+        <details><summary>Where does my data live?</summary><p>In your browser's local storage, on your device. There's no server holding your tasks, no account, and nothing to breach. The ⛃ Data button exports a complete backup file whenever you want one — keep it somewhere safe, because clearing your browser data clears the app too.</p></details>
+        <details><summary>What exactly does the AI do?</summary><p>Four things: chunks intimidating tasks into startable steps, helps you recover a thought you lost mid-sentence, sorts messy brain dumps into to-dos / reminders / feelings, and powers the body-double companion that keeps you company while you work. Messages go through our server to Anthropic's Claude and aren't stored.</p></details>
+        <details><summary>Does it work on my phone?</summary><p>Yes — it's a responsive web app, and you can install it to your home screen (your browser will offer, or use "Add to Home Screen") so it opens like a native app, offline included.</p></details>
+        <details><summary>What if I buy Pro and hate it?</summary><p>Bought Lifetime? Email us within 14 days for a full refund, no questions, no guilt-trip. On Monthly, just cancel — no charge hits you again, and you keep access until the period you paid for ends. Your Pro account signs in from any browser or device — it unlocks the Pro tools and AI, while your tasks and notes never leave your own browser.</p></details>
+        <details><summary>Who made this?</summary><p>An ADHD household that got tired of productivity apps designed for brains that show up the same every day. This one is built around the bad days, not just the good ones — and around what the research actually supports.</p></details>
+      </div>
+    </section>
+
+    <div class="closer">
+      <div class="sprig" style="color:var(--border-hi);transform:scaleX(-1)">
+        <svg width="64" height="30" viewBox="0 0 64 30" fill="none" aria-hidden="true">
+          <path d="M4 26 C 16 22, 26 14, 34 4" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+          <path d="M14 20 c -4 -1, -6 -5, -5 -9 c 4 1, 7 4, 5 9z" fill="currentColor" opacity=".85"/>
+          <path d="M22 13 c -4 -1.5, -5.5 -5.5, -4 -9.5 c 4.5 1.5, 7 5.5, 4 9.5z" fill="currentColor" opacity=".7"/>
+          <path d="M30 7 c -3 -2, -3.5 -5.5, -1.5 -8.5 c 3.5 2, 5 5.5, 1.5 8.5z" fill="currentColor" opacity=".55"/>
+        </svg>
+      </div>
+      <h2>Start a session. That's the whole ask.</h2>
+      <p class="sec-sub" style="margin:0 auto 28px">Two clicks from here to a running focus timer. No signup wall, no onboarding maze.</p>
+      <a class="btn btn-primary" href="/app/">Open Silo — free</a>
+    </div>
+
+    <footer>
+      <a class="logo" href="/" style="font-size:16px"><span class="dot">◉</span>Silo</a>
+      <span class="fine">Made for brains like ours.</span>
+      <span class="spacer"></span>
+      <span class="fine"><a href="mailto:businessforheather92@gmail.com">support</a> · <a href="/app/">open the app</a></span>
+    </footer>
+  </div>
+</body>
+</html>

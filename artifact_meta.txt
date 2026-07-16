@@ -1,0 +1,4 @@
+title: adhd-os.jsx
+description: ADHD-friendly productivity app with focus timer, AI task breakdown, brain dump, body check-ins, and bilateral audio. Built for neurodivergent workflows.
+type: application/vnd.ant.react
+source: https://claude.ai/public/artifacts/558dd7d3-2bf4-48a5-85af-0c0a8162d7fd
