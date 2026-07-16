@@ -76,7 +76,18 @@ async function hasPaidOrder(email, users) {
   });
   if (!r.ok) return false;
   const d = await r.json();
-  const paid = (d.data || []).some((o) => ["paid", "partial_refund"].includes(o.attributes?.status));
+  // A subscription checkout also creates an "order" record (the initial
+  // invoice, even a $0 one during a free trial) with status "paid" — so
+  // checking status alone misclassifies every Monthly subscriber as
+  // "lifetime", which then makes the revocation webhook refuse to ever
+  // clear their entitlement. Require the order to actually be for the
+  // Lifetime product.
+  const lifetimeProductId = process.env.LS_LIFETIME_PRODUCT_ID;
+  const paid = (d.data || []).some(
+    (o) =>
+      ["paid", "partial_refund"].includes(o.attributes?.status) &&
+      (!lifetimeProductId || String(o.attributes?.first_order_item?.product_id) === String(lifetimeProductId))
+  );
   if (paid) await users.set(`entitled:${email}`, "1");
   return paid;
 }

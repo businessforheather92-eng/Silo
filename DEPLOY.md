@@ -69,13 +69,14 @@ the exact clicks. Summary:
    | `SESSION_SECRET` | a long random string — run `openssl rand -hex 32` and paste the output. Signs login sessions; never share or change it casually (changing it signs everyone out). |
    | `LEMONSQUEEZY_API_KEY` | the LS API key from step 2 |
    | `LS_STORE_ID` | your Lemon Squeezy store id |
+   | `LS_LIFETIME_PRODUCT_ID` | the numeric product id of "Silo Lifetime" (Products page → open it → id is in the URL, or `GET /v1/products?filter[store_id]=...`). **Required** — without it, `hasPaidOrder()` can't tell a real Lifetime purchase apart from a Monthly subscription's $0 trial order (Lemon Squeezy creates an "order" record for both), which misclassifies every Monthly subscriber as `plan:"lifetime"` and permanently breaks revocation. |
    | `LS_WEBHOOK_SECRET` | the signing secret from the webhook you created in step 2.5 |
+   | `BLOBS_SITE_ID` | your Netlify site id (Site configuration → General → Site details). **Required** — `getStore()`'s automatic siteID/token detection doesn't reliably reach these Lambda-style function handlers in production; without this the functions 502 with `MissingBlobsEnvironmentError`. |
+   | `BLOBS_TOKEN` | a Netlify personal access token (User settings → Applications → New access token). Paired with `BLOBS_SITE_ID` above as the manual Blobs config fallback. Note: a personal access token is account-wide, broader than this alone needs — fine to start, worth tightening later. |
    | `AUTH_REQUIRED` | leave unset (accounts required). Set `false` for a free-AI launch week. |
    | `AI_DAILY_CAP` | optional; AI messages per account per day (default 400) |
-3. **No KV/database setup needed** — unlike the old Cloudflare plan, the
-   Netlify functions use **Netlify Blobs**, which works automatically inside
-   Netlify Functions with zero configuration (no namespace to create, no
-   binding to wire up).
+3. **Netlify Blobs stores user accounts/entitlement/rate-limit state** — no
+   separate database or namespace to create, just the two env vars above.
 4. Trigger a deploy (pushing to the connected branch auto-deploys; or **Deploys
    → Trigger deploy** in the dashboard).
 
