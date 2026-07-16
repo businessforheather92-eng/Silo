@@ -124,8 +124,6 @@ const PRICE_LIFETIME="$24.99";
 const PRICE_SUB="$7.99/mo";
 const TRIAL_DAYS=14;
 
-// TODO before launch: replace with the real Lemon Squeezy checkout links
-// (also the buy buttons in index.html — see DEPLOY.md)
 const BUY_URL="https://getsilo.lemonsqueezy.com/checkout/buy/ca34f727-1bae-4b11-a844-e36cbe319ec9";
 const BUY_URL_SUB="https://getsilo.lemonsqueezy.com/checkout/buy/45c5575e-e818-4585-b1ca-e366404b9c78";
 

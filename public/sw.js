@@ -1,6 +1,6 @@
 // Silo service worker — app-shell caching so the app opens offline.
 // Bump CACHE on every deploy; old caches are dropped on activate.
-const CACHE = "silo-v13";
+const CACHE = "silo-v14";
 const SHELL = ["/", "/app/", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (e) => {
