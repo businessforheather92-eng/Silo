@@ -31,7 +31,7 @@ import { webcrypto as crypto } from "node:crypto";
 function usersStore() {
   const siteID = process.env.BLOBS_SITE_ID;
   const token = process.env.BLOBS_TOKEN;
-  return siteID && token ? getStore("silo-users", { siteID, token }) : getStore("silo-users");
+  return siteID && token ? getStore({ name: "silo-users", siteID, token }) : getStore("silo-users");
 }
 
 const json = (obj, statusCode = 200) => ({
