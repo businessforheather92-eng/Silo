@@ -1,13 +1,18 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-// Botanical theme — deep moss surfaces, sage accent ramp, cream text.
-// Lightness ladder mirrors the original palette so every contrast pair holds.
+// Botanical theme — light cream paper, deep-green accents. Ported from the
+// landing page (index.html :root) so the dashboard finally matches it —
+// the old dark-moss version of this object never got the round-6 re-theme.
 const P = {
-  bg:"#0B110B", surface:"#121B12", card:"#1A251B", hover:"#223122", lift:"#2B3D2A",
-  border:"#2F3F2C", borderHi:"#4D6045",
-  p10:"#2E4527",p20:"#436139",p30:"#5B7F4E",p40:"#7AA067",p50:"#98BC85",p60:"#B8D3A7",p70:"#D4E5C7",p80:"#EAF3E1",
-  text:"#F5F9F0", textSub:"#D0DEC4", muted:"#9EB290", dim:"#152013",
-  glow:"rgba(122,160,103,0.28)",
+  bg:"#F3F0E3", surface:"#FBFAF3", card:"#FBFAF3", hover:"#EAE6D3", lift:"#E4EBD6",
+  border:"#E1DCC5", borderHi:"#B7BF9C",
+  p10:"#263317",p20:"#1C2712",p30:"#263317",p40:"#4B6B3A",p50:"#4B6B3A",p60:"#263317",p70:"#3A5A2C",p80:"#EDE7D2",
+  text:"#1E2617", textSub:"#4A5A3E", muted:"#84907A", dim:"#EAE6D3",
+  glow:"rgba(38,51,23,0.18)",
+  // Foreground for text/icons sitting on a solid p30/p40/p50 button or chat
+  // bubble fill — those stay solid dark-green regardless of theme, so this
+  // stays a light cream rather than following `text`.
+  onAccent:"#F3F0E3",
 };
 const FONT="'Inter var','Inter',system-ui,sans-serif";
 
@@ -82,7 +87,7 @@ function Btn({onClick,children,full,sm,ghost,danger,loading,disabled}){
       padding:sm?"7px 14px":"10px 22px",borderRadius:10,
       border:ghost?`1px solid ${danger?P.p30:P.borderHi}`:"none",
       background:ghost?"transparent":danger?`linear-gradient(135deg,${P.p20},${P.p30})`:`linear-gradient(135deg,${P.p30},${P.p50})`,
-      color:ghost?(danger?P.p50:P.p60):P.text,
+      color:ghost?(danger?P.p50:P.p60):P.onAccent,
       fontWeight:600,fontSize:sm?12:13,cursor:disabled||loading?"default":"pointer",
       width:full?"100%":"auto",fontFamily:FONT,letterSpacing:0.2,
       opacity:disabled||loading?0.45:1,transition:"opacity 0.15s",
@@ -438,7 +443,7 @@ function TimerPanel(){
               </div>
             </div>
             <div style={{display:"flex",gap:8,width:"100%"}}>
-              <button onClick={()=>{askNotify();setRun(r=>!r);}} style={{flex:1,padding:"12px",borderRadius:11,border:"none",background:`linear-gradient(135deg,${P.p30},${P.p50})`,color:P.text,fontWeight:700,fontSize:14,cursor:"pointer",boxShadow:`0 4px 24px ${P.glow}`,fontFamily:FONT}}>{run?"Pause":"Start"}</button>
+              <button onClick={()=>{askNotify();setRun(r=>!r);}} style={{flex:1,padding:"12px",borderRadius:11,border:"none",background:`linear-gradient(135deg,${P.p30},${P.p50})`,color:P.onAccent,fontWeight:700,fontSize:14,cursor:"pointer",boxShadow:`0 4px 24px ${P.glow}`,fontFamily:FONT}}>{run?"Pause":"Start"}</button>
               <button onClick={()=>{setRun(false);setMode("work");setLeft(mins*60);}} style={{padding:"12px 14px",borderRadius:11,border:`1px solid ${P.border}`,background:"none",color:P.muted,fontSize:14,cursor:"pointer"}}>↺</button>
             </div>
             {sess>0&&(
@@ -503,7 +508,7 @@ function TasksPanel({tasks,setTasks,energy}){
               <div style={{display:"flex",alignItems:"center",gap:9,padding:"10px 13px",cursor:"pointer"}} onClick={()=>setExp(open?null:task.id)}>
                 <div style={{width:16,height:16,borderRadius:5,flexShrink:0,border:`1.5px solid ${task.done?P.p50:pc(task.priority)}`,background:task.done?P.p30:"none",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}
                   onClick={e=>{e.stopPropagation();toggleCh(task.id,task.chunks[task.cd.length]||task.chunks[0]);}}>
-                  {task.done&&<span style={{fontSize:10,color:P.text}}>✓</span>}
+                  {task.done&&<span style={{fontSize:10,color:P.onAccent}}>✓</span>}
                 </div>
                 <span style={{flex:1,fontSize:13,color:task.done?P.muted:P.text,textDecoration:task.done?"line-through":"none",lineHeight:1.3}}>{task.text}</span>
                 {task.rs>0&&<span style={{fontSize:10,color:P.p40}}>↷{task.rs}</span>}
@@ -519,7 +524,7 @@ function TasksPanel({tasks,setTasks,energy}){
                   {task.chunks.map((ch,i)=>(
                     <div key={i} onClick={()=>toggleCh(task.id,ch)} style={{display:"flex",alignItems:"center",gap:9,padding:"5px 0",cursor:"pointer"}}>
                       <div style={{width:13,height:13,borderRadius:4,flexShrink:0,border:`1.5px solid ${task.cd.includes(ch)?P.p50:P.dim}`,background:task.cd.includes(ch)?P.p30:"none",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s"}}>
-                        {task.cd.includes(ch)&&<span style={{fontSize:8,color:P.text}}>✓</span>}
+                        {task.cd.includes(ch)&&<span style={{fontSize:8,color:P.onAccent}}>✓</span>}
                       </div>
                       <span style={{fontSize:12,lineHeight:1.4,color:task.cd.includes(ch)?P.muted:P.textSub,textDecoration:task.cd.includes(ch)?"line-through":"none"}}>{ch}</span>
                     </div>
@@ -814,7 +819,7 @@ function RoutinesPanel(){
                     return(
                       <div key={i} onClick={()=>toggle(r.id,step)} style={{display:"flex",alignItems:"center",gap:9,padding:"6px 0",cursor:"pointer"}}>
                         <div style={{width:15,height:15,borderRadius:5,flexShrink:0,border:`1.5px solid ${done[k]?P.p50:P.dim}`,background:done[k]?P.p30:"none",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s"}}>
-                          {done[k]&&<span style={{fontSize:10,color:P.text}}>✓</span>}
+                          {done[k]&&<span style={{fontSize:10,color:P.onAccent}}>✓</span>}
                         </div>
                         <span style={{fontSize:12,color:done[k]?P.muted:P.textSub,textDecoration:done[k]?"line-through":"none"}}>{step}</span>
                       </div>
@@ -1825,7 +1830,7 @@ function BodyDoublePanel(){
                 padding:msg.role==="user"?"8px 12px":"4px 8px",
                 borderRadius:12,fontSize:msg.role==="user"?12:15,lineHeight:1.65,
                 background:msg.role==="user"?P.p30:"none",
-                color:msg.role==="user"?P.text:P.p70,
+                color:msg.role==="user"?P.onAccent:P.textSub,
                 fontStyle:msg.role==="user"?"normal":"italic"}}>
                 {msg.content}
               </div>
@@ -1911,7 +1916,7 @@ function BodyDoublePanel(){
             {msg.role==="assistant"&&<div style={{width:24,height:24,borderRadius:"50%",background:P.surface,border:`1px solid ${P.p40}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,overflow:"hidden"}}><AvatarFace avatar={avatar} size={30} blink={false}/></div>}
             <div style={{maxWidth:"78%",padding:"9px 12px",lineHeight:1.5,fontSize:12,borderRadius:msg.role==="user"?"12px 12px 4px 12px":"4px 12px 12px 12px",
               background:msg.role==="user"?P.p30:P.card,border:`1px solid ${msg.role==="user"?P.p40:(msg.proactive?P.p30:P.border)}`,
-              color:msg.role==="user"?P.text:P.textSub}}>
+              color:msg.role==="user"?P.onAccent:P.textSub}}>
               {msg.proactive&&<span style={{fontSize:10,color:P.p40,display:"block",marginBottom:2}}>● unprompted</span>}
               {msg.checkin&&<span style={{fontSize:10,color:P.p40,display:"block",marginBottom:2}}>⏰ check-in</span>}
               {msg.content}
@@ -2935,7 +2940,7 @@ function PlanningScreen({avatar,onComplete,onSkip}){
                     maxWidth:"85%",padding:"11px 15px",borderRadius:msg.role==="user"?"14px 14px 4px 14px":"4px 14px 14px 14px",
                     background:msg.role==="user"?P.p30:P.card,
                     border:`1px solid ${msg.role==="user"?P.p40:P.border}`,
-                    fontSize:14,lineHeight:1.5,color:msg.role==="user"?P.text:P.textSub,
+                    fontSize:14,lineHeight:1.5,color:msg.role==="user"?P.onAccent:P.textSub,
                   }}>{msg.content}</div>
                 </div>
               ))}
@@ -3310,7 +3315,7 @@ export default function Silo(){
 
         {/* Tools tab — edit which panels are in use */}
         <button onClick={()=>setScreen("quickstart")} style={{display:"flex",alignItems:"center",gap:6,padding:"6px 14px",borderRadius:999,border:`1px solid ${P.p40}`,background:P.lift,color:P.p60,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:FONT,boxShadow:`0 0 12px ${P.glow}`,whiteSpace:"nowrap"}}>
-          ⊞ Tools<span style={{fontSize:11,fontWeight:800,background:P.p30,borderRadius:999,padding:"1px 7px",color:P.text}}>{active.length}</span>
+          ⊞ Tools<span style={{fontSize:11,fontWeight:800,background:P.p30,borderRadius:999,padding:"1px 7px",color:P.onAccent}}>{active.length}</span>
         </button>
 
         {/* Energy */}
