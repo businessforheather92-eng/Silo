@@ -915,7 +915,7 @@ function ProMenu(){
     if(busy)return;
     setBusy(true);setMsg("");
     try{
-      const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:mode,email,password:pass})});
+      const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:mode==="signin"?"login":mode,email,password:pass})});
       const d=await r.json();
       if(d.ok){setAcct({email:d.email||email.trim().toLowerCase(),token:d.token,ts:Date.now()});setEmail("");setPass("");setMsg("✦ Pro unlocked. Enjoy.");window.dispatchEvent(new Event("c_account_changed"));}
       else setMsg(d.reason||"That didn't work — try again.");
